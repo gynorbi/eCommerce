@@ -2,6 +2,8 @@ package com.example.demo.controllers;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +22,8 @@ import com.example.demo.model.persistence.repositories.UserRepository;
 @RestController
 @RequestMapping("/api/order")
 public class OrderController {
-	
-	
+	private Logger log = LoggerFactory.getLogger(OrderController.class);
+
 	@Autowired
 	private UserRepository userRepository;
 	
@@ -31,21 +33,31 @@ public class OrderController {
 	
 	@PostMapping("/submit/{username}")
 	public ResponseEntity<UserOrder> submit(@PathVariable String username) {
+		log.info("Submitting order for user '{}'", username);
 		User user = userRepository.findByUsername(username);
 		if(user == null) {
+			log.warn("User '{}' was not found. Order not submitted.", username);
 			return ResponseEntity.notFound().build();
 		}
+		log.debug("Creating UserOrder form cart of user '{}'", username);
 		UserOrder order = UserOrder.createFromCart(user.getCart());
+		log.debug("Saving order for user '{}'", username);
 		orderRepository.save(order);
+		log.info("Order for user '{}' submitted successfully", username);
 		return ResponseEntity.ok(order);
 	}
 	
 	@GetMapping("/history/{username}")
 	public ResponseEntity<List<UserOrder>> getOrdersForUser(@PathVariable String username) {
+		log.info("Getting order history for user '{}'", username);
 		User user = userRepository.findByUsername(username);
 		if(user == null) {
+			log.warn("User '{}' was not found. History cannot be retrieved.", username);
 			return ResponseEntity.notFound().build();
 		}
-		return ResponseEntity.ok(orderRepository.findByUser(user));
+		log.debug("User '{}' found. Trying to get the order history.", username);
+		List<UserOrder> orderHistory = orderRepository.findByUser(user);
+		log.info("Retrieved order history for user '{}'", username);
+		return ResponseEntity.ok(orderHistory);
 	}
 }
