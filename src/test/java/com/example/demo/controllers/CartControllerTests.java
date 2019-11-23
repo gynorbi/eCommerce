@@ -98,14 +98,21 @@ public class CartControllerTests {
     public void remove_from_cart_happy_path(){
         User expectedUser = generateUser(1L);
         Item expectedItem = generateItem(1L,"new-item-");
-        int expectedQty = 2;
+        Cart cartWithSameItem = new Cart();
+        cartWithSameItem.setId(2L);
+        cartWithSameItem.setUser(expectedUser);
+        cartWithSameItem.addItem(expectedItem);
+        cartWithSameItem.addItem(expectedItem);
+        cartWithSameItem.addItem(expectedItem);
+        expectedUser.setCart(cartWithSameItem);
+        int removedQty = 2;
         int initialQty = expectedUser.getCart().getItems().size();
         when(userRepository.findByUsername(expectedUser.getUsername())).thenReturn(expectedUser);
         when(itemRepository.findById(any())).thenReturn(Optional.of(expectedItem));
         ModifyCartRequest modifyCartRequest = new ModifyCartRequest();
         modifyCartRequest.setUsername(expectedUser.getUsername());
         modifyCartRequest.setItemId(1L);
-        modifyCartRequest.setQuantity(expectedQty);
+        modifyCartRequest.setQuantity(removedQty);
 
         ResponseEntity<Cart> response = cartController.removeFromcart(modifyCartRequest);
 
@@ -114,7 +121,7 @@ public class CartControllerTests {
         Cart actualCart = response.getBody();
         assertNotNull("Resulting cart should not be null", actualCart);
         assertEquals("User of cart should be correct", expectedUser.getUsername(),actualCart.getUser().getUsername());
-        assertEquals("Number of items in cart should be correct", initialQty-expectedQty, actualCart.getItems().size());
+        assertEquals("Number of items in cart should be correct", initialQty-removedQty, actualCart.getItems().size());
     }
 
     @Test
