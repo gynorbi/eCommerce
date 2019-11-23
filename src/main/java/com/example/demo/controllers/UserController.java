@@ -69,7 +69,7 @@ public class UserController {
 
 		if(createUserRequest.getPassword().length() < 7 ||
 		!createUserRequest.getPassword().equals(createUserRequest.getConfirmPassword())){
-			log.warn("Password not matching criterias. Cannot create user '{}'", createUserRequest.getUsername());
+			log.warn("Password not matching criteria. Cannot create user '{}'", createUserRequest.getUsername());
 			return ResponseEntity.badRequest().build();
 		}
 
