@@ -11,18 +11,20 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Optional;
 
+import static com.example.demo.util.TestHelper.generateUser;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class UserControllerTests {
     @Mock
     private UserRepository userRepository;
@@ -35,7 +37,6 @@ public class UserControllerTests {
 
     @Before
     public void init(){
-        MockitoAnnotations.initMocks(this);
         when(encoder.encode(any())).thenReturn("thisIsHashed");
     }
 
@@ -93,7 +94,7 @@ public class UserControllerTests {
     @Test
     public void find_by_id_for_existing_user(){
         Long expectedId = 1L;
-        User expected = getUser(expectedId);
+        User expected = generateUser(expectedId);
         when(userRepository.findById(expectedId)).thenReturn(Optional.of(expected));
 
         ResponseEntity<User> response = userController.findById(expectedId);
@@ -108,7 +109,7 @@ public class UserControllerTests {
     @Test
     public void find_by_id_for_non_existing_user(){
         Long expectedId = 1L;
-        User expected = getUser(expectedId);
+        User expected = generateUser(expectedId);
         when(userRepository.findById(expectedId)).thenReturn(Optional.empty());
 
         ResponseEntity<User> response = userController.findById(expectedId);
@@ -121,7 +122,7 @@ public class UserControllerTests {
 
     @Test
     public void find_by_username_for_existing_user(){
-        User expected = getUser(1L);
+        User expected = generateUser(1L);
         when(userRepository.findByUsername(expected.getUsername())).thenReturn(expected);
 
         ResponseEntity<User> response = userController.findByUserName(expected.getUsername());
@@ -136,7 +137,7 @@ public class UserControllerTests {
     @Test
     public void find_by_username_for_non_existing_user(){
         Long expectedId = 1L;
-        User expected = getUser(expectedId);
+        User expected = generateUser(expectedId);
         when(userRepository.findByUsername(expected.getUsername())).thenReturn(null);
 
         ResponseEntity<User> response = userController.findByUserName(expected.getUsername());
@@ -145,15 +146,6 @@ public class UserControllerTests {
         assertEquals("Status code should be 404",404,response.getStatusCodeValue());
         User actualUser = response.getBody();
         assertNull("Returned user should be null", actualUser);
-    }
-
-    private User getUser(Long id) {
-        User user = new User();
-        user.setId(id);
-        user.setUsername("user"+id.toString());
-        user.setPassword("hashedPassword"+id.toString());
-        user.setCart(mock(Cart.class));
-        return user;
     }
 
 }
