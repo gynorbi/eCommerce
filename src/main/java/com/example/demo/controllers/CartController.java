@@ -37,18 +37,18 @@ public class CartController {
 	
 	@PostMapping("/addToCart")
 	public ResponseEntity<Cart> addTocart(@RequestBody ModifyCartRequest request) {
-		log.info("Received request to add to cart: '{}'", request);
+		log.info("[addTocart-Attempt]Received request to add to cart: '{}'", request);
 		log.debug("Trying to find user '{}'",request.getUsername());
 		User user = userRepository.findByUsername(request.getUsername());
 		log.debug("Found user '{}'",request.getUsername());
 		if(user == null) {
-			log.warn("Unable to find user '{}'. Cannot perform add to cart request.", request.getUsername());
+			log.warn("[addTocart-Failure]Unable to find user '{}'. Cannot perform add to cart request.", request.getUsername());
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 		log.debug("Trying to find item with id '{}'", request.getItemId());
 		Optional<Item> item = itemRepository.findById(request.getItemId());
 		if(!item.isPresent()) {
-			log.warn("Unable to find item with id '{}'. Cannot perform add to cart request.", request.getItemId());
+			log.warn("[addTocart-Failure]Unable to find item with id '{}'. Cannot perform add to cart request.", request.getItemId());
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 		log.debug("Found item with id '{}'", request.getItemId());
@@ -58,23 +58,23 @@ public class CartController {
 			.forEach(i -> cart.addItem(item.get()));
 		log.debug("Saving cart of the user");
 		cartRepository.save(cart);
-		log.info("Cart updated successfully for user '{}'", request.getUsername());
+		log.info("[addTocart-Success]Cart updated successfully for user '{}'", request.getUsername());
 		return ResponseEntity.ok(cart);
 	}
-	
+
 	@PostMapping("/removeFromCart")
 	public ResponseEntity<Cart> removeFromcart(@RequestBody ModifyCartRequest request) {
-		log.info("Received request to remove from cart: '{}'", request);
+		log.info("[removeFromcart-Attempt]Received request to remove from cart: '{}'", request);
 		log.debug("Trying to find user '{}'",request.getUsername());
 		User user = userRepository.findByUsername(request.getUsername());
 		log.debug("Found user '{}'",request.getUsername());
 		if(user == null) {
-			log.warn("Unable to find user '{}'. Cannot perform remove from cart request.", request.getUsername());
+			log.warn("[removeFromcart-Failure]Unable to find user '{}'. Cannot perform remove from cart request.", request.getUsername());
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 		Optional<Item> item = itemRepository.findById(request.getItemId());
 		if(!item.isPresent()) {
-			log.warn("Unable to find item with id '{}'. Cannot perform remove from cart request.", request.getItemId());
+			log.warn("[removeFromcart-Failure]Unable to find item with id '{}'. Cannot perform remove from cart request.", request.getItemId());
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 		log.debug("Found item with id '{}'", request.getItemId());
@@ -84,7 +84,7 @@ public class CartController {
 			.forEach(i -> cart.removeItem(item.get()));
 		log.debug("Saving cart of the user");
 		cartRepository.save(cart);
-		log.info("Cart updated successfully for user '{}'", request.getUsername());
+		log.info("[removeFromcart-Success]Cart updated successfully for user '{}'", request.getUsername());
 		return ResponseEntity.ok(cart);
 	}
 		

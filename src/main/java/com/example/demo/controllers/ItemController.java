@@ -36,13 +36,13 @@ public class ItemController {
 	
 	@GetMapping("/name/{name}")
 	public ResponseEntity<List<Item>> getItemsByName(@PathVariable String name) {
-		log.info("Getting all items with name '{}'", name);
+		log.info("[getItemsByName-Attempt]Getting all items with name '{}'", name);
 		List<Item> items = itemRepository.findByName(name);
 		if(items == null || items.isEmpty()){
-			log.warn("No items found with name '{}'",name);
+			log.warn("[getItemsByName-Failure]No items found with name '{}'",name);
 			return ResponseEntity.notFound().build();
 		}
-		log.info("Successfully retrieved items with name '{}'",name);
+		log.info("[getItemsByName-Success]Successfully retrieved items with name '{}'",name);
 		return ResponseEntity.ok(items);
 	}
 	

@@ -33,31 +33,31 @@ public class OrderController {
 	
 	@PostMapping("/submit/{username}")
 	public ResponseEntity<UserOrder> submit(@PathVariable String username) {
-		log.info("Submitting order for user '{}'", username);
+		log.info("[submit][Attempt]Submitting order for user '{}'", username);
 		User user = userRepository.findByUsername(username);
 		if(user == null) {
-			log.warn("User '{}' was not found. Order not submitted.", username);
+			log.warn("[submit-Failure]User '{}' was not found. Order not submitted.", username);
 			return ResponseEntity.notFound().build();
 		}
 		log.debug("Creating UserOrder form cart of user '{}'", username);
 		UserOrder order = UserOrder.createFromCart(user.getCart());
 		log.debug("Saving order for user '{}'", username);
 		orderRepository.save(order);
-		log.info("Order for user '{}' submitted successfully", username);
+		log.info("[submit-Success]Order for user '{}' submitted successfully", username);
 		return ResponseEntity.ok(order);
 	}
 	
 	@GetMapping("/history/{username}")
 	public ResponseEntity<List<UserOrder>> getOrdersForUser(@PathVariable String username) {
-		log.info("Getting order history for user '{}'", username);
+		log.info("[getOrdersForUser-Attempt]Getting order history for user '{}'", username);
 		User user = userRepository.findByUsername(username);
 		if(user == null) {
-			log.warn("User '{}' was not found. History cannot be retrieved.", username);
+			log.warn("[getOrdersForUser-Failure]User '{}' was not found. History cannot be retrieved.", username);
 			return ResponseEntity.notFound().build();
 		}
 		log.debug("User '{}' found. Trying to get the order history.", username);
 		List<UserOrder> orderHistory = orderRepository.findByUser(user);
-		log.info("Retrieved order history for user '{}'", username);
+		log.info("[getOrdersForUser-Success]Retrieved order history for user '{}'", username);
 		return ResponseEntity.ok(orderHistory);
 	}
 }

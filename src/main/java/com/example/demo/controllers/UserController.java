@@ -35,25 +35,25 @@ public class UserController {
 
 	@GetMapping("/id/{id}")
 	public ResponseEntity<User> findById(@PathVariable Long id) {
-		log.info("Trying to find user with id '{}'", id);
+		log.info("[findById-Attempt]Trying to find user with id '{}'", id);
 		Optional<User> user = userRepository.findById(id);
 		user.ifPresentOrElse(
-				username -> log.info("User with id '{}' was found successfully", id),
-				() -> log.info("User with id '{}' was not found", id)
+				username -> log.info("[findById-Success]User with id '{}' was found successfully", id),
+				() -> log.info("[findById-Failure]User with id '{}' was not found", id)
 		);
 		return ResponseEntity.of(user);
 	}
 	
 	@GetMapping("/{username}")
 	public ResponseEntity<User> findByUserName(@PathVariable String username) {
-		log.info("Trying to find user with name '{}'", username);
+		log.info("[findByUserName-Attempt]Trying to find user with name '{}'", username);
 		User user = userRepository.findByUsername(username);
 		if(user == null){
-			log.info("User '{}' was not found", username);
+			log.info("[findByUserName-Failure]User '{}' was not found", username);
 			return ResponseEntity.notFound().build();
 		}
 		else{
-			log.info("User '{}' found successfully", username);
+			log.info("[findByUserName-Success]User '{}' found successfully", username);
 			return ResponseEntity.ok(user);
 		}
 	}
@@ -61,7 +61,7 @@ public class UserController {
 	@PostMapping("/create")
 	public ResponseEntity<User> createUser(@RequestBody CreateUserRequest createUserRequest) {
 		User user = new User();
-		log.info("CreateUserRequest received for user '{}'", createUserRequest.getUsername());
+		log.info("[createUser-Attempt]Trying to create user '{}'", createUserRequest.getUsername());
 		user.setUsername(createUserRequest.getUsername());
 		Cart cart = new Cart();
 		cartRepository.save(cart);
@@ -69,7 +69,7 @@ public class UserController {
 
 		if(createUserRequest.getPassword().length() < 7 ||
 		!createUserRequest.getPassword().equals(createUserRequest.getConfirmPassword())){
-			log.warn("Password not matching criteria. Cannot create user '{}'", createUserRequest.getUsername());
+			log.warn("[createUser-Failure]Password not matching criteria. Cannot create user '{}'", createUserRequest.getUsername());
 			return ResponseEntity.badRequest().build();
 		}
 
@@ -78,7 +78,7 @@ public class UserController {
 		log.debug("Password encoded");
 
 		userRepository.save(user);
-		log.info("CreateUserRequest successful for user '{}'", createUserRequest.getUsername());
+		log.info("[createUser-Success]Created user '{}'", createUserRequest.getUsername());
 		return ResponseEntity.ok(user);
 	}
 	
